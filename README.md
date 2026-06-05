@@ -1,88 +1,80 @@
-# 🤖 AI Todo/Task Manager
+# ai-todo-gemini
 
-Full-stack Task Manager พร้อม AI วิเคราะห์งานอัตโนมัติ และแจ้งเตือนผ่าน Telegram
+Task manager ที่ใช้ Gemini วิเคราะห์งานให้อัตโนมัติ จัดลำดับความสำคัญ และแจ้งเตือนผ่าน LINE
 
-## ✨ Features
+## Features
 
-- ✅ CRUD Tasks พร้อม authentication (JWT)
-- 🤖 AI วิเคราะห์ priority, category, คาดเวลา (Claude API)
-- 📱 แจ้งเตือนผ่าน **Telegram** และ **LINE**
-- ⏰ Cron job สรุปงานทุกเช้า 8:00 น. และเตือน overdue ทุกชั่วโมง
-- 🌐 Frontend React + Tailwind CSS
+- สร้าง/แก้ไข/ลบ Task พร้อมระบบ login (JWT)
+- Gemini วิเคราะห์ priority, category และเวลาที่คาดว่าใช้ทุกครั้งที่สร้าง task
+- Dashboard กราฟสรุปสถานะและ AI วิเคราะห์ภาพรวมของงาน
+- แจ้งเตือนผ่าน LINE รายคน — สรุปงานเช้า, เตือน overdue, สรุปตอนเย็น
+- รองรับหลาย user แยกข้อมูลกันสมบูรณ์
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Tech |
 |---|---|
-| Frontend | React + Tailwind CSS |
-| Backend | Python + FastAPI |
-| Database | PostgreSQL + SQLAlchemy |
-| AI | Claude API (Anthropic) |
-| Notification | Telegram Bot / LINE |
+| Frontend | React 19, Vite, Tailwind CSS, Recharts |
+| Backend | FastAPI, SQLAlchemy |
+| Database | SQLite (local) / PostgreSQL (production) |
+| AI | Google Gemini 2.5 Flash |
+| Notification | LINE Messaging API |
+| Auth | JWT + bcrypt |
 | Scheduler | APScheduler |
+| Deploy | Railway |
 
-## 🚀 วิธีติดตั้ง
+## Getting Started
 
-### 1. Clone & Setup Backend
+### Backend
 
 ```bash
 cd backend
-python -m venv venv
-venv\Scripts\activate        # Windows
-# source venv/bin/activate   # Mac/Linux
+python -m venv venv_win
+venv_win\Scripts\activate
 
 pip install -r requirements.txt
 
 cp .env.example .env
-# แก้ไข .env ใส่ค่าจริง
+# แก้ไข .env ใส่ GEMINI_API_KEY และ LINE_CHANNEL_ACCESS_TOKEN
 ```
-
-### 2. ตั้งค่า Database
-
-```bash
-# สร้าง database PostgreSQL ชื่อ tododb ก่อน
-alembic upgrade head
-```
-
-### 3. รัน Backend
 
 ```bash
 uvicorn main:app --reload
-# เปิดที่ http://localhost:8000
-# API Docs: http://localhost:8000/docs
+# http://localhost:8000
+# http://localhost:8000/docs
 ```
 
-### 4. Setup Frontend
+### Frontend
 
 ```bash
 cd frontend
 npm install
-npm start
-# เปิดที่ http://localhost:3000
+npm run dev
+# http://localhost:5173
 ```
 
-## 🔑 ตั้งค่า Telegram Bot
+## Environment Variables
 
-1. เปิด Telegram แล้วคุยกับ **@BotFather**
-2. พิมพ์ `/newbot` แล้วตั้งชื่อ bot
-3. คัดลอก **token** ที่ได้ใส่ใน `.env`
-4. คุยกับ bot แล้วไปที่ `https://api.telegram.org/bot<TOKEN>/getUpdates`
-5. คัดลอก **chat_id** ใส่ใน `.env`
+```env
+DATABASE_URL=sqlite:///./todo.db
+SECRET_KEY=your-secret-key
+GEMINI_API_KEY=your-gemini-key
+LINE_CHANNEL_ACCESS_TOKEN=your-line-token
+```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 todo-ai-app/
 ├── backend/
 │   ├── main.py
 │   ├── requirements.txt
-│   ├── .env.example
 │   └── app/
-│       ├── routers/     ← API endpoints
-│       ├── services/    ← AI + Notification
-│       ├── models/      ← Database models
-│       ├── schemas/     ← Pydantic schemas
-│       └── jobs/        ← Cron jobs
+│       ├── routers/        API endpoints
+│       ├── services/       Gemini + LINE
+│       ├── models/         Database models
+│       ├── schemas/        Pydantic schemas
+│       └── jobs/           Scheduled tasks
 └── frontend/
     └── src/
         ├── App.jsx
@@ -90,10 +82,10 @@ todo-ai-app/
         └── services/
 ```
 
-## 📸 Demo
+## LINE Setup
 
-> _เพิ่ม screenshot หรือ video demo ที่นี่_
-
-## 📄 License
-
-MIT
+1. สร้าง Messaging API channel ที่ [developers.line.biz](https://developers.line.biz)
+2. คัดลอก Channel access token ใส่ใน `.env`
+3. ตั้ง Webhook URL เป็น `https://your-backend/line/webhook`
+4. User add bot เป็นเพื่อน แล้วส่งข้อความอะไรก็ได้ — bot จะตอบ User ID กลับมา
+5. นำ User ID ไปกรอกตอนสมัครสมาชิก
