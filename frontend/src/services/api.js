@@ -13,7 +13,9 @@ export const register = async (email, password, lineId = "") => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password, line_id: lineId }),
   });
-  return res.json();
+  const data = await res.json();
+  if (data.access_token) localStorage.setItem("token", data.access_token);
+  return data;
 };
 
 export const login = async (email, password) => {
